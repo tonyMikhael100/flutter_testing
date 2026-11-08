@@ -28,13 +28,16 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  bloc: ^9.2.1
   cupertino_icons: ^1.0.8
+  dartz: ^0.10.1
   dio: ^5.11.1
   easy_localization: ^3.0.8
   firebase_auth: ^6.7.0
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.2
+  flutter_bloc: ^9.1.1
   flutter_screenutil: ^5.9.3
   flutter_secure_storage: ^11.2.0
   get_it: ^9.3.0

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_testing/features/chats/data/models/message_type.dart';
 
-enum MessageType { user, model }
+export 'package:flutter_testing/features/chats/data/models/message_type.dart';
 
 class MessageBubble extends StatelessWidget {
   const MessageBubble({

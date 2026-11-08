@@ -53,13 +53,23 @@ class ServerFailure extends Failure {
 
   /// Helper to interpret API error responses based on status code or message
   static String _handleBadResponse(int? statusCode, dynamic data) {
+    final error = data is Map ? data['error'] : null;
+    final message = error is Map
+        ? error['message']
+        : data is Map
+            ? data['message']
+            : null;
+    final serverMessage =
+        message is String && message.trim().isNotEmpty ? message : null;
+
     switch (statusCode) {
       case 400:
         return 'Bad request, please check your input.';
       case 401:
         return 'Unauthorized, please login again.';
       case 403:
-        return '${data['message']}';
+        return serverMessage ??
+            'You do not have permission to make this request.';
       case 404:
         return 'Requested resource not found.';
       case 409:
@@ -69,11 +79,8 @@ class ServerFailure extends Failure {
       case 503:
         return 'Server unavailable, please try again later.';
       default:
-        // Try to extract a readable message from response body
-        if (data is Map && data['message'] != null) {
-          return data['message'].toString();
-        }
-        return 'Something went wrong (${statusCode ?? 'unknown error'}).';
+        return serverMessage ??
+            'Something went wrong (${statusCode ?? 'unknown error'}).';
     }
   }
 }
