@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_testing/core/themes/app_colors.dart';
 import 'package:flutter_testing/core/themes/app_fonts.dart';
 
 class AppTheme {
@@ -28,6 +29,7 @@ class AppTheme {
         primary: darkAccent,
         onPrimary: Colors.white,
         surface: darkSurface,
+        surfaceContainerHighest: Color(0xFF303030),
         secondary: darkAccent,
       ),
 
@@ -100,11 +102,12 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       fontFamily: AppFonts.primary,
-      scaffoldBackgroundColor: softWhite,
-      primaryColor: sageGreen,
+      scaffoldBackgroundColor: AppColors.white,
+      primaryColor: AppColors.primaryColor,
       colorScheme: const ColorScheme.light(
-        primary: sageGreen,
-        surface: Colors.white,
+        primary: AppColors.primaryColor,
+        surface: AppColors.white,
+        surfaceContainerHighest: Color(0xFFEEEEEE),
       ),
     );
   }

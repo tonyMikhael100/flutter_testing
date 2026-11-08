@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_testing/core/routing/app_router.dart';
+import 'package:flutter_testing/core/themes/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +22,10 @@ class MyApp extends StatelessWidget {
       designSize: const Size(402, 844),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) =>
-          MaterialApp.router(routerConfig: AppRouter.router),
+      builder: (context, child) => MaterialApp.router(
+        theme: AppTheme.lightTheme,
+        routerConfig: AppRouter.router,
+      ),
     );
   }
 }

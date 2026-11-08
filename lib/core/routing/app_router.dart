@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_testing/features/chats/presentation/screens/chat_screen.dart';
 import 'package:flutter_testing/features/splash/presentation/screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,6 +14,7 @@ class AppRouter {
 
   static String loginScreen = '/loginScreen';
   static String splashScreen = '/splashScreen';
+  static String chatScreen = '/chatScreen';
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
@@ -24,6 +26,7 @@ class AppRouter {
         builder: ((context, state) => SplashScreen()),
       ),
       GoRoute(path: loginScreen, builder: (context, state) => Placeholder()),
+      GoRoute(path: chatScreen, builder: (context, state) => ChatScreen()),
     ],
     errorBuilder: (context, state) =>
         Scaffold(body: Center(child: Text('Page not found: ${state.uri}'))),
