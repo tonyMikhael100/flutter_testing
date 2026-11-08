@@ -20,6 +20,13 @@ class MessageModel {
     return MessageModel(text: textParts.join(), type: MessageType.model);
   }
 
+  Map<String, dynamic> toJson() => {
+        'type': type.stepType,
+        'content': [
+          {'type': 'text', 'text': text},
+        ],
+      };
+
   static List<MessageModel> listFromJson(Map<String, dynamic> json) {
     final steps = json['steps'];
     if (steps is! List) return [];

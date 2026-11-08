@@ -3,11 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_testing/core/errors/failure.dart';
 import 'package:flutter_testing/core/networking/api_service_client.dart';
 import 'package:flutter_testing/features/chats/data/models/ai_chat_request.dart';
+import 'package:flutter_testing/features/chats/data/models/message_model.dart';
 import 'package:flutter_testing/features/chats/data/models/message_type.dart';
 import 'package:flutter_testing/features/chats/data/repo/chat_repo_imp.dart';
 
 void main() {
-  const request = AiChatRequest(model: 'test-model', input: 'Hello');
+  const request = AiChatRequest(
+    model: 'test-model',
+    messages: [MessageModel(text: 'Hello', type: MessageType.user)],
+  );
 
   test('returns separate messages and joins text parts within each output',
       () async {

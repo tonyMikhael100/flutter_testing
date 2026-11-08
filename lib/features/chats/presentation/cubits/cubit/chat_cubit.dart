@@ -10,34 +10,43 @@ class ChatCubit extends Cubit<ChatState> {
   ChatCubit({required this.chatRepoImp}) : super(const ChatState());
   final ChatRepoImp chatRepoImp;
 
-  Future<void> sendMessage(AiChatRequest chatRequest) async {
-    if (state.isLoading) return;
+  Future<void> sendMessage(String text) async {
+    if (state.isLoading || text.trim().isEmpty) return;
 
-    final userMessage = MessageModel(
-      text: chatRequest.input,
-      type: MessageType.user,
+    await _requestReply(
+      [
+        ...state.messages,
+        MessageModel(text: text, type: MessageType.user),
+      ],
     );
+  }
 
-    // Show the user's message right away instead of waiting for the reply.
-    emit(
-      state.copyWith(
-        status: ChatStatus.loading,
-        messages: [...state.messages, userMessage],
-      ),
+  /// Resends the conversation after a failed request. The unanswered user
+  /// message is still the last one, so nothing has to be re-added.
+  Future<void> retryLastMessage() async {
+    if (!state.isFailure || !state.hasMessages) return;
+
+    await _requestReply(state.messages);
+  }
+
+  Future<void> _requestReply(List<MessageModel> conversation) async {
+    // Show the conversation right away instead of waiting for the reply.
+    emit(state.copyWith(status: StateStatus.loading, messages: conversation));
+
+    final result = await chatRepoImp.send(
+      AiChatRequest(messages: conversation),
     );
-
-    final result = await chatRepoImp.send(chatRequest);
 
     result.fold(
       (failure) => emit(
         state.copyWith(
-          status: ChatStatus.failure,
+          status: StateStatus.failure,
           errorMessage: failure.errorMessage,
         ),
       ),
       (replies) => emit(
         state.copyWith(
-          status: ChatStatus.success,
+          status: StateStatus.success,
           messages: [...state.messages, ...replies],
         ),
       ),

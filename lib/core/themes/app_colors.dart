@@ -7,6 +7,8 @@ class AppColors {
   static const Color cardBg = Color(0xffF9F9F9);
   static const Color white = Colors.white;
   static const Color red = Color(0xFFE53935);
+  static const Color success = Color(0xFF1E9E6A);
+  static const Color warning = Color(0xFFF59E0B);
   static Color backGround = Colors.grey.shade100;
   static Color lightBlack = Colors.black54;
   static Color geryLight = Colors.grey.shade200;

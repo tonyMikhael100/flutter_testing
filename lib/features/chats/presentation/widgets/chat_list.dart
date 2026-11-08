@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_testing/core/utils/my_toast.dart';
 import 'package:flutter_testing/features/chats/presentation/cubits/cubit/chat_cubit.dart';
 import 'package:flutter_testing/features/chats/presentation/widgets/empty_chat.dart';
+import 'package:flutter_testing/features/chats/presentation/widgets/failure_chat_list.dart';
 import 'package:flutter_testing/features/chats/presentation/widgets/message_bubble.dart';
 
 class ChatList extends StatelessWidget {
@@ -11,10 +13,8 @@ class ChatList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ChatCubit, ChatState>(
       builder: (context, state) {
-        if (state.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state.errorMessage != null) {
-          return Center(child: Text(state.errorMessage!));
+        if (state.isFailure) {
+          return const Center(child: FailureChatList());
         } else if (state.messages.isEmpty) {
           return const Center(child: EmptyChat());
         } else {
@@ -25,6 +25,8 @@ class ChatList extends StatelessWidget {
               return MessageBubble(
                 message: message.text,
                 type: message.type,
+                isLoading: state.status == StateStatus.loading &&
+                    index == state.messages.length - 1,
               );
             },
           );

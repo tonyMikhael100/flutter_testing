@@ -1,28 +1,28 @@
 part of 'chat_cubit.dart';
 
-enum ChatStatus { initial, loading, success, failure }
+enum StateStatus { initial, loading, success, failure }
 
 class ChatState {
-  final ChatStatus status;
+  final StateStatus status;
   final List<MessageModel> messages;
   final String? errorMessage;
 
   const ChatState({
-    this.status = ChatStatus.initial,
+    this.status = StateStatus.initial,
     this.messages = const [],
     this.errorMessage,
   });
 
-  bool get isInitial => status == ChatStatus.initial;
-  bool get isLoading => status == ChatStatus.loading;
-  bool get isSuccess => status == ChatStatus.success;
-  bool get isFailure => status == ChatStatus.failure;
+  bool get isInitial => status == StateStatus.initial;
+  bool get isLoading => status == StateStatus.loading;
+  bool get isSuccess => status == StateStatus.success;
+  bool get isFailure => status == StateStatus.failure;
   bool get hasMessages => messages.isNotEmpty;
 
   // errorMessage is intentionally not carried over, so a stale error
   // disappears as soon as the chat moves to any other status.
   ChatState copyWith({
-    ChatStatus? status,
+    StateStatus? status,
     List<MessageModel>? messages,
     String? errorMessage,
   }) {

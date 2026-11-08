@@ -8,6 +8,15 @@ import 'package:flutter_testing/core/networking/api_keys.dart';
 import 'package:flutter_testing/core/networking/api_service_client.dart';
 import 'package:flutter_testing/features/chats/data/models/ai_chat_request.dart';
 import 'package:flutter_testing/features/chats/data/models/message_model.dart';
+import 'package:flutter_testing/features/chats/data/models/message_type.dart';
+
+const _hello = MessageModel(text: 'Hello', type: MessageType.user);
+const _helloStep = {
+  'type': 'user_input',
+  'content': [
+    {'type': 'text', 'text': 'Hello'},
+  ],
+};
 
 void main() {
   test('posts authenticated JSON and reads the model reply', () async {
@@ -33,24 +42,48 @@ void main() {
 
     final response = await client.sendMessage(
       apiKey: 'test-key',
-      request: const AiChatRequest(model: 'test-model', input: 'Hello'),
+      request: const AiChatRequest(model: 'test-model', messages: [_hello]),
     );
 
     expect(adapter.request!.method, 'POST');
     expect(adapter.request!.uri.toString(), ApiEndpoints.gemini);
     expect(adapter.request!.headers['x-goog-api-key'], 'test-key');
     expect(adapter.request!.contentType, Headers.jsonContentType);
-    expect(adapter.request!.data, {'model': 'test-model', 'input': 'Hello'});
+    expect(adapter.request!.data, {
+      'model': 'test-model',
+      'input': [_helloStep],
+    });
     expect(response['id'], 'interaction-1');
     expect(response['status'], 'completed');
 
     await client.sendMessage(
       request: const AiChatRequest(
         model: 'test-model',
-        input: 'Continue',
+        messages: [
+          _hello,
+          MessageModel(text: 'Hi!', type: MessageType.model),
+          MessageModel(text: 'Continue', type: MessageType.user),
+        ],
       ),
     );
-    expect(adapter.request!.data, {'model': 'test-model', 'input': 'Continue'});
+    expect(adapter.request!.data, {
+      'model': 'test-model',
+      'input': [
+        _helloStep,
+        {
+          'type': 'model_output',
+          'content': [
+            {'type': 'text', 'text': 'Hi!'},
+          ],
+        },
+        {
+          'type': 'user_input',
+          'content': [
+            {'type': 'text', 'text': 'Continue'},
+          ],
+        },
+      ],
+    });
     expect(
         adapter.request!.headers['x-goog-api-key'] == ApiKeys.gemini, isTrue);
   });
@@ -68,7 +101,7 @@ void main() {
     await expectLater(
       ApiServiceClient(dio).sendMessage(
         apiKey: 'test-key',
-        request: const AiChatRequest(model: 'test-model', input: 'Hello'),
+        request: const AiChatRequest(model: 'test-model', messages: [_hello]),
       ),
       throwsA(
         isA<DioException>()

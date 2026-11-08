@@ -1,105 +1,72 @@
-import 'dart:ui';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_testing/core/themes/app_colors.dart';
-import 'package:flutter_testing/core/themes/app_fonts.dart';
 import 'package:flutter_testing/core/themes/app_text_styles.dart';
 import 'package:toastification/toastification.dart';
 
+/// A compact notification that slides down from the top of the screen.
+/// Tap it or swipe it up to dismiss.
 class MyToast {
   MyToast._();
 
-  /// Displays a premium center popup dialog instead of a transient toast.
   static void show({
     required BuildContext context,
     required String title,
     String? description,
     ToastificationType type = ToastificationType.info,
-    Duration? duration,
-    Alignment alignment = Alignment.topCenter,
+    Duration duration = const Duration(seconds: 4),
   }) {
-    final scheme = _schemeFor(type);
+    final colors = Theme.of(context).colorScheme;
+    final accent = _accentFor(type, colors);
 
-    if (type == ToastificationType.error) {
-      showDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierColor: Colors.black.withValues(alpha: 0.6),
-        builder: (context) =>
-            _MessageDialog(title: title, description: description, type: type),
-      );
-    } else {
-      toastification.show(
-        context: context,
-        type: type,
-        style: ToastificationStyle.flat,
-        title: Text(
-          title,
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.w700,
-            fontFamily: AppFonts.primary,
-            fontSize: 14.sp,
-          ),
+    toastification.show(
+      context: context,
+      type: type,
+      style: ToastificationStyle.flat,
+      alignment: Alignment.topCenter,
+      autoCloseDuration: duration,
+      animationDuration: const Duration(milliseconds: 350),
+      animationBuilder: _slideFromTop,
+      icon: _ToastIcon(icon: _iconFor(type), color: accent),
+      title: Text(
+        title,
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: colors.onSurface,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w600,
         ),
-        description: description != null
-            ? Text(
-                description,
-                style: AppTextStyles.bodySmall.copyWith(
-                  fontFamily: AppFonts.primary,
-                  color: Colors.grey.shade600,
-                  fontSize: 12.sp,
-                ),
-              )
-            : null,
-        alignment: alignment,
-        autoCloseDuration: duration ?? const Duration(seconds: 4),
-        animationDuration: const Duration(milliseconds: 500),
-        animationBuilder: (context, animation, alignment, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, -0.3),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+      ),
+      description: description == null
+          ? null
+          : Text(
+              description,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: colors.onSurfaceVariant,
+                fontSize: 12.sp,
+              ),
             ),
-            child: FadeTransition(opacity: animation, child: child),
-          );
-        },
-        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
-        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: scheme.accent.withValues(alpha: 0.15),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        showProgressBar: true,
-        progressBarTheme: ProgressIndicatorThemeData(
-          color: scheme.accent,
-          linearTrackColor: scheme.accent.withValues(alpha: 0.1),
+      primaryColor: accent,
+      backgroundColor: colors.surface,
+      foregroundColor: colors.onSurface,
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      borderRadius: BorderRadius.circular(16.r),
+      borderSide: BorderSide(color: colors.outlineVariant),
+      boxShadow: [
+        BoxShadow(
+          color: colors.shadow.withValues(alpha: 0.08),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
         ),
-        closeButton:
-            const ToastCloseButton(showType: CloseButtonShowType.onHover),
-        closeOnClick: true,
-        pauseOnHover: true,
-        dragToClose: true,
-        applyBlurEffect: true,
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.black,
-        borderSide: BorderSide(
-          color: scheme.accent.withValues(alpha: 0.2),
-          width: 1.5,
-        ),
-      );
-    }
+      ],
+      showProgressBar: false,
+      closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
+      closeOnClick: true,
+      dragToClose: true,
+      dismissDirection: DismissDirection.up,
+      pauseOnHover: true,
+      applyBlurEffect: false,
+    );
   }
 
   // ── Shortcuts ───────────────────────────────────────────────────────────────
@@ -148,227 +115,61 @@ class MyToast {
         type: ToastificationType.info,
       );
 
-  // ── Types ───────────────────────────────────────────────────
+  // ── Helpers ─────────────────────────────────────────────────────────────────
 
-  static _ToastScheme _schemeFor(ToastificationType type) {
-    switch (type) {
-      case ToastificationType.success:
-        return const _ToastScheme(
-          accent: AppColors.secondaryColor,
-          icon: Icons.check_circle_rounded,
-        );
-      case ToastificationType.error:
-        return const _ToastScheme(
-          accent: Color(0xFFFF5252),
-          icon: Icons.cancel_rounded,
-        );
-      case ToastificationType.warning:
-        return const _ToastScheme(
-          accent: Color(0xFFFFB300),
-          icon: Icons.warning_rounded,
-        );
-      case ToastificationType.info:
-      default:
-        return const _ToastScheme(
-          accent: Color(0xFF64B5F6),
-          icon: Icons.info_rounded,
-        );
-    }
+  static Color _accentFor(ToastificationType type, ColorScheme colors) {
+    return switch (type) {
+      ToastificationType.success => AppColors.success,
+      ToastificationType.warning => AppColors.warning,
+      ToastificationType.error => colors.error,
+      _ => colors.primary,
+    };
+  }
+
+  static IconData _iconFor(ToastificationType type) {
+    return switch (type) {
+      ToastificationType.success => Icons.check_circle_rounded,
+      ToastificationType.warning => Icons.warning_rounded,
+      ToastificationType.error => Icons.error_rounded,
+      _ => Icons.info_rounded,
+    };
+  }
+
+  static Widget _slideFromTop(
+    BuildContext context,
+    Animation<double> animation,
+    Alignment alignment,
+    Widget child,
+  ) {
+    final curved =
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, -1),
+        end: Offset.zero,
+      ).animate(curved),
+      child: FadeTransition(opacity: curved, child: child),
+    );
   }
 }
 
-class _MessageDialog extends StatefulWidget {
-  final String title;
-  final String? description;
-  final ToastificationType type;
+class _ToastIcon extends StatelessWidget {
+  const _ToastIcon({required this.icon, required this.color});
 
-  const _MessageDialog({
-    required this.title,
-    this.description,
-    required this.type,
-  });
-
-  @override
-  State<_MessageDialog> createState() => _MessageDialogState();
-}
-
-class _MessageDialogState extends State<_MessageDialog>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scaleAnim;
-  late final Animation<double> _fadeAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-    _scaleAnim = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    );
-    _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = MyToast._schemeFor(widget.type);
-
-    return FadeTransition(
-      opacity: _fadeAnim,
-      child: ScaleTransition(
-        scale: _scaleAnim,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          insetPadding: EdgeInsets.symmetric(horizontal: 36.w),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28.r),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(28.r),
-                  border: Border.all(
-                    color: scheme.accent.withValues(alpha: 0.2),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: scheme.accent.withValues(alpha: 0.15),
-                      blurRadius: 40,
-                      offset: const Offset(0, 12),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          height: 110.h,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                scheme.accent.withValues(alpha: 0.12),
-                                scheme.accent.withValues(alpha: 0.03),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(28.r),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(18.r),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: scheme.accent.withValues(alpha: 0.2),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: scheme.accent.withValues(alpha: 0.25),
-                                blurRadius: 24,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            scheme.icon,
-                            color: scheme.accent,
-                            size: 44.r,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 28.w,
-                        vertical: 24.h,
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            widget.title,
-                            style: AppTextStyles.headingMedium.copyWith(
-                              color: AppColors.lightBlack,
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          if (widget.description != null) ...[
-                            SizedBox(height: 12.h),
-                            Text(
-                              widget.description!,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: Colors.grey.shade600,
-                                fontSize: 13.sp,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                          SizedBox(height: 32.h),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: scheme.accent,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: EdgeInsets.symmetric(vertical: 16.h),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14.r),
-                                ),
-                              ),
-                              child: Text(
-                                'auth.common.done'.tr(),
-                                style: AppTextStyles.button.copyWith(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+    return Container(
+      width: 36.r,
+      height: 36.r,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10.r),
       ),
+      child: Icon(icon, color: color, size: 20.r),
     );
   }
-}
-
-class _ToastScheme {
-  final Color accent;
-  final IconData icon;
-  const _ToastScheme({required this.accent, required this.icon});
 }

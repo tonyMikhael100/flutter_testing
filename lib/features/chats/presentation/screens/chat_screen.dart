@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_testing/features/chats/data/models/ai_chat_request.dart';
 import 'package:flutter_testing/features/chats/presentation/cubits/cubit/chat_cubit.dart';
 import 'package:flutter_testing/features/chats/presentation/widgets/chat_app_bar.dart';
 import 'package:flutter_testing/features/chats/presentation/widgets/chat_list.dart';
@@ -21,11 +20,7 @@ class ChatScreen extends StatelessWidget {
         child: ChatList(),
       ),
       bottomNavigationBar: SendMessageFooter(
-        onSend: (value) {
-          // Handle sending the message
-          context.read<ChatCubit>().sendMessage(
-              AiChatRequest(model: 'gemini-3.5-flash-lite', input: value));
-        },
+        onSend: (value) => context.read<ChatCubit>().sendMessage(value),
       ),
     );
   }
