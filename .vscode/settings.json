@@ -1,0 +1,27 @@
+{
+  "git.repositoryScanIgnoredFolders": [
+    "node_modules",
+    "build",
+    ".dart_tool",
+    "Pods",
+    ".symlinks"
+  ],
+  "git.ignoredRepositories": [
+    "build/ios/SourcePackages/checkouts/AppAuth-iOS",
+    "build/ios/SourcePackages/checkouts/GTMAppAuth",
+    "build/ios/SourcePackages/checkouts/GoogleAppMeasurement",
+    "build/ios/SourcePackages/checkouts/GoogleDataTransport",
+    "build/ios/SourcePackages/checkouts/GoogleSignIn-iOS",
+    "build/ios/SourcePackages/checkouts/GoogleUtilities",
+    "build/ios/SourcePackages/checkouts/abseil-cpp-binary",
+    "build/ios/SourcePackages/checkouts/app-check",
+    "build/ios/SourcePackages/checkouts/firebase-ios-sdk",
+    "build/ios/SourcePackages/checkouts/google-ads-on-device-conversion-ios-sdk",
+    "build/ios/SourcePackages/checkouts/grpc-binary",
+    "build/ios/SourcePackages/checkouts/gtm-session-fetcher",
+    "build/ios/SourcePackages/checkouts/interop-ios-for-google-sdks",
+    "build/ios/SourcePackages/checkouts/leveldb",
+    "build/ios/SourcePackages/checkouts/nanopb",
+    "build/ios/SourcePackages/checkouts/promises"
+  ]
+}

@@ -1,0 +1,8 @@
+targets:
+  $default:
+    builders:
+      source_gen:combining_builder:
+        options:
+          # Empty Retrofit clients retain Dio for future endpoint methods.
+          ignore_for_file:
+            - unused_field
