@@ -5,8 +5,7 @@ class AiChatRequest {
 
   final String model;
 
-  /// The whole conversation, oldest first. Gemini keeps no memory between
-  /// requests here, so every request must carry the full history.
+  /// The conversation context sent to Gemini, oldest first.
   final List<MessageModel> messages;
 
   const AiChatRequest({

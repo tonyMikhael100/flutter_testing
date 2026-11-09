@@ -19,8 +19,14 @@ class ChatScreen extends StatelessWidget {
       body: const SafeArea(
         child: ChatList(),
       ),
-      bottomNavigationBar: SendMessageFooter(
-        onSend: (value) => context.read<ChatCubit>().sendMessage(value),
+      bottomNavigationBar: BlocBuilder<ChatCubit, ChatState>(
+        buildWhen: (previous, current) =>
+            previous.isLoading != current.isLoading,
+        builder: (context, state) => SendMessageFooter(
+          onSend: state.isLoading
+              ? null
+              : (value) => context.read<ChatCubit>().sendMessage(value),
+        ),
       ),
     );
   }

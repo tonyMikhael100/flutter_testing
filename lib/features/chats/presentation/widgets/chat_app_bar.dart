@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_testing/core/themes/app_colors.dart';
-import 'package:flutter_testing/core/themes/app_text_styles.dart';
-import 'package:flutter_testing/core/utils/spacing.dart';
 import 'package:flutter_testing/gen/assets.gen.dart';
 
 class ChatAppBar extends StatelessWidget {
@@ -10,26 +7,37 @@ class ChatAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SafeArea(
       child: Column(
         children: [
-          Row(
-            children: [
-              horizontalSpace(16),
-              Assets.logo.image(
-                width: 30.w,
-                color: AppColors.primaryColor,
-              ),
-              horizontalSpace(16),
-              Text(
-                'online chat',
-                style: AppTextStyles.displayMedium,
-              ),
-            ],
+          Expanded(
+            child: Row(
+              children: [
+                const SizedBox(width: 16),
+                Assets.logo.image(
+                  width: 30,
+                  height: 30,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 16),
+                Flexible(
+                  child: Text(
+                    'online chat',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontSize: 26.sp.clamp(20, 32).toDouble(),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
           ),
-          Divider(
-            color: Colors.grey.shade200,
-          ),
+          Divider(height: 1, color: theme.colorScheme.outlineVariant),
         ],
       ),
     );

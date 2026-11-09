@@ -1,35 +1,39 @@
-//center icon with text and a button to retry the request
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_testing/features/chats/presentation/cubits/cubit/chat_cubit.dart';
 
 class FailureChatList extends StatelessWidget {
-  const FailureChatList({super.key});
+  const FailureChatList({super.key, this.errorMessage});
+
+  final String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Icon(
-          Icons.error_outline,
-          size: 64,
-          color: Colors.red,
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Semantics(
+        liveRegion: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, color: theme.colorScheme.error),
+            const SizedBox(height: 8),
+            Text(
+              errorMessage ?? 'Failed to send message',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+            TextButton(
+              onPressed: () => context.read<ChatCubit>().retryLastMessage(),
+              child: const Text('Retry'),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        const Text(
-          'Failed to load messages',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        ElevatedButton(
-          onPressed: () {
-            context.read<ChatCubit>().retryLastMessage();
-          },
-          child: const Text('Retry'),
-        ),
-        const Spacer(),
-      ],
+      ),
     );
   }
 }

@@ -13,8 +13,16 @@ class ChatRepoImp implements ChatRepo {
 
   @override
   Future<Either<Failure, List<MessageModel>>> send(
-      AiChatRequest request) async {
+    List<MessageModel> conversation,
+  ) async {
     try {
+      // Limit API context without changing the caller's visible conversation.
+      final requestMessages = List<MessageModel>.unmodifiable(
+        conversation.length >= 20
+            ? conversation.sublist(conversation.length - 5)
+            : conversation,
+      );
+      final request = AiChatRequest(messages: requestMessages);
       final response = await apiServiceClient.sendMessage(request: request);
       return Right(MessageModel.listFromJson(response));
     } on DioException catch (error) {

@@ -12,7 +12,7 @@ abstract class ApiServiceClient {
 
   @POST(ApiEndpoints.gemini)
   @Headers({'Content-Type': 'application/json'})
-  Future<Map<String, Object?>> sendMessage({
+  Future<Map<String, Object>> sendMessage({
     @Header('x-goog-api-key') String apiKey = ApiKeys.gemini,
     @Body() required AiChatRequest request,
   });

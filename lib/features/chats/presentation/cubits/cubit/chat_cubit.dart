@@ -1,17 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_testing/features/chats/data/models/ai_chat_request.dart';
 import 'package:flutter_testing/features/chats/data/models/message_model.dart';
 import 'package:flutter_testing/features/chats/data/models/message_type.dart';
-import 'package:flutter_testing/features/chats/data/repo/chat_repo_imp.dart';
+import 'package:flutter_testing/features/chats/data/repo/chat_repo.dart';
 
 part 'chat_state.dart';
 
 class ChatCubit extends Cubit<ChatState> {
   ChatCubit({required this.chatRepoImp}) : super(const ChatState());
-  final ChatRepoImp chatRepoImp;
+  final ChatRepo chatRepoImp;
 
   Future<void> sendMessage(String text) async {
-    if (state.isLoading || text.trim().isEmpty) return;
+    if (isClosed || state.isLoading || text.trim().isEmpty) return;
 
     await _requestReply(
       [
@@ -24,18 +23,19 @@ class ChatCubit extends Cubit<ChatState> {
   /// Resends the conversation after a failed request. The unanswered user
   /// message is still the last one, so nothing has to be re-added.
   Future<void> retryLastMessage() async {
-    if (!state.isFailure || !state.hasMessages) return;
+    if (isClosed || !state.isFailure || !state.hasMessages) return;
 
     await _requestReply(state.messages);
   }
 
   Future<void> _requestReply(List<MessageModel> conversation) async {
-    // Show the conversation right away instead of waiting for the reply.
-    emit(state.copyWith(status: StateStatus.loading, messages: conversation));
+    //to be visible not deleted in the ui but not sent to the api because of the limit of 20 messages in the api
+    final visibleMessages = List<MessageModel>.unmodifiable(conversation);
+    emit(
+        state.copyWith(status: StateStatus.loading, messages: visibleMessages));
 
-    final result = await chatRepoImp.send(
-      AiChatRequest(messages: conversation),
-    );
+    final result = await chatRepoImp.send(visibleMessages);
+    if (isClosed) return;
 
     result.fold(
       (failure) => emit(
@@ -44,10 +44,16 @@ class ChatCubit extends Cubit<ChatState> {
           errorMessage: failure.errorMessage,
         ),
       ),
+
+      //evey conerstaion we append the old messages with the new replies and emit the new state
+      //but the request to the api is only with the last 5 messages if the conversation is more than 20 messages
       (replies) => emit(
         state.copyWith(
           status: StateStatus.success,
-          messages: [...state.messages, ...replies],
+          messages: List<MessageModel>.unmodifiable([
+            ...visibleMessages,
+            ...replies,
+          ]),
         ),
       ),
     );

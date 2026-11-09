@@ -23,7 +23,7 @@ class _ApiServiceClient implements ApiServiceClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Map<String, Object?>> sendMessage({
+  Future<Map<String, Object>> sendMessage({
     String apiKey = ApiKeys.gemini,
     required AiChatRequest request,
   }) async {
@@ -36,7 +36,7 @@ class _ApiServiceClient implements ApiServiceClient {
     _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
-    final _options = _setStreamType<Map<String, Object?>>(
+    final _options = _setStreamType<Map<String, Object>>(
       Options(
         method: 'POST',
         headers: _headers,
@@ -52,9 +52,9 @@ class _ApiServiceClient implements ApiServiceClient {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, Object?> _value;
+    late Map<String, Object> _value;
     try {
-      _value = _result.data!.cast<String, Object?>();
+      _value = _result.data!.cast<String, Object>();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
